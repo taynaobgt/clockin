@@ -1,0 +1,69 @@
+# File nay can dat tai: .github/workflows/watch-clockin.yml trong 1 repo GitHub MOI,
+# RIENG cho $CLOCKIN (khong dung chung repo voi pools.trade hay pools.fun)
+#
+# Cau truc repo can co:
+#   your-repo/
+#   ├── .github/workflows/watch-clockin.yml   <- file nay
+#   ├── watch.py                               <- doi ten watch_clockin.py thanh watch.py
+#   └── state.json                             <- de trong noi dung {}
+#
+# Thiet lap:
+# 1. Tao 1 repo GitHub moi (rieng cho clockin.win)
+# 2. Copy file nay vao:  .github/workflows/watch-clockin.yml
+# 3. Copy watch_clockin.py vao thu muc goc repo, DOI TEN thanh: watch.py
+# 4. Tao file state.json o thu muc goc, noi dung: {}
+# 5. Settings -> Secrets and variables -> Actions -> New repository secret:
+#      TELEGRAM_BOT_TOKEN = <token bot cua ban>
+#      TELEGRAM_CHAT_ID   = <chat id cua ban>
+#    (co the dung CHUNG bot Telegram voi cac repo truoc, khong sao ca)
+# 6. Settings -> Actions -> General -> Workflow permissions -> "Read and write permissions"
+# 7. Commit & push, vao tab Actions -> Run workflow de chay thu
+
+name: Watch clockin.win
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: watch-clockin
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run watcher
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WATCH_URL: "https://clockin.win/"
+          STATUS_REPORT_INTERVAL_MINUTES: "60"
+        run: python watch.py
+
+      - name: Commit updated state (neu co thay doi)
+        run: |
+          git config user.name "clockin-watcher-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if [ -n "$(git status --porcelain state.json)" ]; then
+            git add state.json
+            git commit -m "chore: update watcher state [skip ci]"
+            git push
+          else
+            echo "Khong co thay doi state.json, bo qua commit."
+          fi
