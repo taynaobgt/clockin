@@ -1,9 +1,9 @@
 {
-  "hash": "217bd82cc9e593013b68f018ddf138a25393dc046e441471a477696310f0d6fa",
+  "hash": "789ee5c115b5bfd9e0dcbaafaa7c950c3660600ef95bd460c53af80285a0e4ea",
   "coming_soon": false,
   "known_ca_candidates": [],
-  "last_checked": "2026-08-20T05:01:29.231043+00:00",
+  "last_checked": "2026-08-20T05:41:44.182641+00:00",
   "last_status_code": 200,
-  "last_report_ts": 1787199585.191534,
-  "last_changed_ts": 1787180372.0915556
+  "last_report_ts": 1787204504.1826553,
+  "last_changed_ts": 1787204504.182636
 }
